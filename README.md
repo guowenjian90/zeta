@@ -1,1 +1,1 @@
-# Zeta, an AI platform enabling next generation AI application
+# Zeta, an AI platform unleash GPT applications
