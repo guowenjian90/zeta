@@ -1,1 +1,1 @@
-# Zeta, an AI platform unleash GPT applications
+# Zeta, unleash GPT applications
