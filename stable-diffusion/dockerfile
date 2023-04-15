@@ -6,6 +6,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install -y git vim wget python3-pip python3-venv
 
+# install the required libGL.so.1
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+
 # add a new user "zeta" with user id 666
 RUN useradd -u 666 zeta
 RUN mkdir /home/zeta
