@@ -27,6 +27,6 @@ WORKDIR "/home/zeta/stable-diffusion-webui"
 # replace the torch==1.13.1+cu117 version setting in the git repo, that version cannot be found
 ENV TORCH_COMMAND="pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu117"
 
-# require gpu to start
-CMD ["bash", "webui.sh"]
+# add skip cuda test, in case gpu is not available locally
+CMD ["bash", "webui.sh", "--skip-torch-cuda-test"]
 #CMD ["bash", "-c", "sleep infinity"]
