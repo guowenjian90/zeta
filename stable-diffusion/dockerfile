@@ -17,7 +17,7 @@ RUN chown zeta /home/zeta
 # switch to user zeta, since the webui.sh requires to run a non-root user
 USER zeta
 WORKDIR /home/zeta
-RUN git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui
+RUN git clone https://github.com/CentaurusAI/stable-diffusion-webui.git 
 
 # Download stable diffusion orignal model checkpoint file
 WORKDIR "/home/zeta/stable-diffusion-webui/models/Stable-diffusion"
@@ -28,8 +28,12 @@ EXPOSE 7861
 WORKDIR "/home/zeta/stable-diffusion-webui"
 
 # replace the torch==1.13.1+cu117 version setting in the git repo, that version cannot be found
-ENV TORCH_COMMAND="pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu117"
+# ENV TORCH_COMMAND="pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu117"
+
+RUN python3 prepare_env.py --skip-torch-cuda-test
+ENV PATH="$PATH:/home/zeta/.local/bin"
 
 # add skip cuda test, in case gpu is not available locally
-CMD ["bash", "webui.sh", "--skip-torch-cuda-test"]
+#CMD ["bash", "webui.sh", "--skip-torch-cuda-test"]
+CMD ["python3", "start.py"]
 #CMD ["bash", "-c", "sleep infinity"]
