@@ -21,19 +21,20 @@ RUN git clone https://github.com/CentaurusAI/stable-diffusion-webui.git
 
 # Download stable diffusion orignal model checkpoint file
 WORKDIR "/home/zeta/stable-diffusion-webui/models/Stable-diffusion"
-RUN wget https://huggingface.co/CompVis/stable-diffusion-v-1-4-original/resolve/main/sd-v1-4.ckpt
-
+#RUN wget https://huggingface.co/CompVis/stable-diffusion-v-1-4-original/resolve/main/sd-v1-4.ckpt
+COPY sd-v1-4.ckpt .
+ 
 # Start the web UI, port was defined in webui.py line 228
-EXPOSE 7861
 WORKDIR "/home/zeta/stable-diffusion-webui"
-
+ENV PATH="$PATH:/home/zeta/.local/bin"
 # replace the torch==1.13.1+cu117 version setting in the git repo, that version cannot be found
 # ENV TORCH_COMMAND="pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu117"
 
 RUN python3 prepare_env.py --skip-torch-cuda-test
-ENV PATH="$PATH:/home/zeta/.local/bin"
 
 # add skip cuda test, in case gpu is not available locally
 #CMD ["bash", "webui.sh", "--skip-torch-cuda-test"]
+EXPOSE 7860
+
 CMD ["python3", "start.py"]
 #CMD ["bash", "-c", "sleep infinity"]
