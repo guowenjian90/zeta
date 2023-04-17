@@ -4,4 +4,4 @@
 ## Start the web server
 ```docker run --rm --gpus all -p 0.0.0.0:80:7860 centaurusinfra/webui```
 
-Access the UI with <YOUR Public IP>:80
+Access the UI with ```<YOUR Public IP>:80```
