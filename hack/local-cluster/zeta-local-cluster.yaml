@@ -1,0 +1,10 @@
+# check to use modified kind to pass gpu device into docker kind container,
+# https://jacobtomlinson.dev/posts/2022/running-kubeflow-inside-kind-with-gpu-support/
+# ./kind create cluster --config kind-gpu.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: zeta
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.23.5
+    gpus: True
