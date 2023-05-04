@@ -1,3 +1,5 @@
+gradio==3.27.0
 torch==2.0.0
 diffusers==0.16.1
 transformers==4.28.1
+accelerate==0.18.0
