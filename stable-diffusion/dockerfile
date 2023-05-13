@@ -14,7 +14,7 @@ RUN mkdir /home/zeta
 WORKDIR /home/zeta
 # install the required python library
 COPY requirement.txt .
-COPY simple_app.py .
+COPY sd_inpainting.py .
 RUN pip install -r requirement.txt
 
 # Download stable diffusion orignal model checkpoint file
@@ -24,5 +24,5 @@ RUN pip install -r requirement.txt
 
 EXPOSE 7860
 
-CMD ["python3", "simple_app.py"]
+CMD ["python3", "sd_inpainting.py"]
 #CMD ["bash", "-c", "sleep infinity"]
