@@ -19,4 +19,4 @@ with gr.Blocks() as app:
     submit_btn.click(fn=generate, inputs=prompt, outputs=img_output)
 
 # ---- Start the Web server ---- 
-app.launch(debug=True, share=True)
+app.launch(server_name="0.0.0.0",server_port=7860, debug=True, share=True)
