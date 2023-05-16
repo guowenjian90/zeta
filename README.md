@@ -9,7 +9,7 @@
 - [ ] 4. pack a docker image with model file, instead of downloading online
 - [ ] 5. collect model serving performance metrics (native diffusion model call, no triton server), including, latency, throughput.
 - [ ] 6. convert diffusion model to triton format, collect model serving perfoance metric with triton server
-- [ ] 7. gradio UI add one model option, and coresponding backend model definition
+- [ ] 7. gradio UI add one model option, and coresponding backend model definition (LLama)
 - [ ] 8. triton server performance analysis and improvement design, or new design -- zeta serving
 - [ ] 9. gradio UI add fine-tune option, and coresponding backend model definition (fine-tune environment is more complex)
 - [ ] 10. scheduler design consider both the quick serving request and long fine-tuning request (one cluster handle both services)
