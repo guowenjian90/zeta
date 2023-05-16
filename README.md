@@ -11,8 +11,8 @@
 - [ ] 6. convert diffusion model to triton format, collect model serving perfoance metric with triton server
 - [ ] 7. gradio UI add one model option, and coresponding backend model definition
 - [ ] 8. triton server performance analysis and improvement design, or new design -- zeta serving
-- [ ] 9. gradio UI add fine-tune option, and coresponding backend model definition
-- [ ] 10. scheduler design consider both the quick serving request and long fine-tuning request 
+- [ ] 9. gradio UI add fine-tune option, and coresponding backend model definition (fine-tune environment is more complex)
+- [ ] 10. scheduler design consider both the quick serving request and long fine-tuning request (one cluster handle both services)
 - [ ] 11. user model and data managment, fast storage service design, considering isolation and privacy
 
 ## Start the web server 
