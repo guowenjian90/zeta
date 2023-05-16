@@ -17,7 +17,8 @@ COPY requirement.txt .
 COPY sd_inpainting.py .
 RUN pip install -r requirement.txt
 
-# Download stable diffusion orignal model checkpoint file
+# Download stable diffusion orignal model folder
+RUN git lfs install
 RUN git clone https://huggingface.co/runwayml/stable-diffusion-inpainting
  
 

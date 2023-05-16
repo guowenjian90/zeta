@@ -6,7 +6,7 @@ from diffusers import StableDiffusionPipeline
 
 # ---- (backend) API call to the model ----
 def generate(prompt):
-    model_id = "runwayml/stable-diffusion-v1-5"
+    model_id = "./stable-diffusion-v1-5"
     pipeline = StableDiffusionPipeline.from_pretrained(model_id,torch_dtype=torch.float32)
     if torch.cuda.is_available():
         pipeline.to("cuda")
