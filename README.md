@@ -14,6 +14,8 @@
 - [ ] 6. triton server performance analysis and improvement design, or new design -- zeta serving
 ### 3. Fine-tune TODO
 - [ ] 1. how to do multiple pods, elastic training
+- [ ] 2. Open-source Distributed Training library 1: https://huggingface.co/docs/accelerate/index
+- [ ] 3. Open-source Distributed Training library 2: https://github.com/hpcaitech/ColossalAI/tree/main
 ### 4. Cluster TODO
 - [ ] 1. scheduler design consider both the quick serving request and long fine-tuning request (one cluster handle both services)
 - [ ] 2. user model and data managment, fast storage service design, considering isolation and privacy
