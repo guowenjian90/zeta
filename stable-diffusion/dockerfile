@@ -18,8 +18,7 @@ COPY sd_inpainting.py .
 RUN pip install -r requirement.txt
 
 # Download stable diffusion orignal model checkpoint file
-#RUN wget https://huggingface.co/CompVis/stable-diffusion-v-1-4-original/resolve/main/sd-v1-4.ckpt
-#COPY sd-v1-4.ckpt .
+RUN clone https://huggingface.co/runwayml/stable-diffusion-inpainting
  
 
 EXPOSE 7860

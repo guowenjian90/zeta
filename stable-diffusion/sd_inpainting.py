@@ -8,7 +8,7 @@ def generate(dict, prompt):
     mask_image = dict['mask'].convert("RGB").resize((512, 512))
 
     # TODO change model id to local directory for better performance
-    model_id = "runwayml/stable-diffusion-inpainting"
+    model_id = "./stable-diffusion-inpainting"
     pipe = StableDiffusionInpaintPipeline.from_pretrained(
         model_id,
         torch_dtype=torch.float16,
