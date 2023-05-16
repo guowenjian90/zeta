@@ -2,7 +2,9 @@ import gradio as gr
 import torch
 from diffusers import StableDiffusionPipeline
 
-# ---- API call to the model ----
+# ---- TODO: seperate backend and frontend to different pods ----
+
+# ---- (backend) API call to the model ----
 def generate(prompt):
     model_id = "runwayml/stable-diffusion-v1-5"
     pipeline = StableDiffusionPipeline.from_pretrained(model_id,torch_dtype=torch.float32)
@@ -11,7 +13,7 @@ def generate(prompt):
     image = pipeline(prompt).images[0]
     return image
 
-# ---- Web UI design and API hook up ----
+# ---- (front end) Web UI design and API hook up ----
 with gr.Blocks() as app:
     prompt = gr.Textbox(label="Prompt")
     submit_btn = gr.Button("Generate")
