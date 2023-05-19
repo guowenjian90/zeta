@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 # default python3 version is 3.10
 RUN apt-get update \
-    && apt-get install -y git vim wget python3-pip python3-venv
+    && apt-get install -y git git-lfs vim wget python3-pip python3-venv
 
 # install the required libGL.so.1
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
@@ -18,8 +18,17 @@ COPY simple_app.py .
 RUN pip install -r requirement.txt
 
 # Download stable diffusion orignal model folder
-RUN git clone https://huggingface.co/runwayml/stable-diffusion-v1-5
- 
+RUN GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/runwayml/stable-diffusion-v1-5
+# the following code doesn't delete those files. Need to figure it out.
+RUN rm ./stable-diffusion-v1-5/v1-5-pruned-emaonly.safetensors
+RUN rm ./stable-diffusion-v1-5/v1-5-pruned.ckpt
+RUN rm ./stable-diffusion-v1-5/v1-5-pruned.safetensors
+
+WORKDIR /home/zeta/stable-diffusion-v1-5
+RUN git lfs pull
+
+WORKDIR /home/zeta
+
 
 EXPOSE 7860
 
