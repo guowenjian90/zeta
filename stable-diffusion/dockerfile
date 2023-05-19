@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 # default python3 version is 3.10
 RUN apt-get update \
-    && apt-get install -y git vim wget python3-pip python3-venv
+    && apt-get install -y git git-lfs vim wget python3-pip python3-venv
 
 # install the required libGL.so.1
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
@@ -17,13 +17,12 @@ COPY requirement.txt .
 COPY sd_inpainting.py .
 RUN pip install -r requirement.txt
 
-# Copy stable diffusion huggingface model folder
-RUN apt-get install git-lfs
-RUN git lfs install
-RUN git clone https://huggingface.co/runwayml/stable-diffusion-inpainting
- 
+# Download stable diffusion orignal model folder
+RUN GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/runwayml/stable-diffusion-inpainting
+WORKDIR /home/zeta/stable-diffusion-inpainting
+RUN git lfs pull
+WORKDIR /home/zeta
 
 EXPOSE 7860
 
 CMD ["python3", "sd_inpainting.py"]
-#CMD ["bash", "-c", "sleep infinity"]
