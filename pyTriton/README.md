@@ -15,4 +15,4 @@ cd pytriton/examples/add_sub_python
 
 
 # Some notes
-has to set --shm-size=256m or there will be an error "Stub process is unhealthy and it will be restarted"
+use --shm-size=256m in launching docker or there will be an error "Stub process is unhealthy and it will be restarted"
