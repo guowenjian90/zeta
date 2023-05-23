@@ -1,18 +1,37 @@
-# Clone the pyTriton repo
+# Pytriton 
+[PyTriton](https://github.com/triton-inference-server/pytriton#examples) is a Flask/FastAPI-like interface that simplifies Triton's deployment in Python environments. The library allows serving Machine Learning models directly from Python through NVIDIA's Triton Inference Server.
+
+
+# How to deploy Stable Diffusion with pyTrition
+
+Step 1: Clone the pyTriton repo to get examples
+
+```
 git clone https://github.com/triton-inference-server/pytriton
+```
 
-# How to create a PyTriton environment
-1. You can build your own environment or lanch the NVIDIA PyTorch Docker container
-docker run --gpus all -it --shm-size=256m --rm --net=host -v ${PWD}:/workspace/ -v ${PWD}/pytriton/examples nvcr.io/nvidia/pytorch:23.03-py3 bash
+Step 2: create a PyTriton environment
+You can build your own environment or lanch the NVIDIA PyTorch Docker container
 
-# Install PyTriton libary
-pip install -U nvidia-pytriton
+```
+docker run --gpus all -it --shm-size=8gb --rm --net=host -v ${PWD}:/workspace/ -v ${PWD}/pytriton nvcr.io/nvidia/pytorch:23.03-py3 bash
+```
+Step 3: Install libary
+```
+./install.sh
+```
 
-# There are several examples provided and you can go into the corresponding folders (We use a simple example here)
-cd pytriton/examples/add_sub_python
+Step 4: Launch Server
 
+```
+./server.py
+```
 
+Step 5: Launch Server
 
+```
+./client.py
+```
 
-# Some notes
-use --shm-size=256m in launching docker or there will be an error "Stub process is unhealthy and it will be restarted"
+## Notes
+use --shm-size = 8gb in launching docker or there will be an error "Stub process is unhealthy and it will be restarted"
