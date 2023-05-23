@@ -4,30 +4,23 @@
 
 # How to deploy Stable Diffusion with pyTrition
 
-Step 1: Clone the pyTriton repo to get examples
-
-```
-git clone https://github.com/triton-inference-server/pytriton
-```
-
-Step 2: create a PyTriton environment
-You can build your own environment or lanch the NVIDIA PyTorch Docker container
+Step 1: create a PyTriton environment. You can build your own environment or lanch the NVIDIA PyTorch Docker container
 
 ```
 docker run --gpus all -it --shm-size=8gb --rm --net=host -v ${PWD}:/workspace/ -v ${PWD}/pytriton nvcr.io/nvidia/pytorch:23.03-py3 bash
 ```
-Step 3: Install libary
+Step 2: Install libary
 ```
 ./install.sh
 ```
 
-Step 4: Launch Server
+Step 3: Launch Server
 
 ```
 ./server.py
 ```
 
-Step 5: Launch Server
+Step 4: Launch Server
 
 ```
 ./client.py
