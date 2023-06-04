@@ -1,5 +1,5 @@
 
-The quick steps to trigger LLama-Vicuna inference on GPU/CPU base server:
+The quick steps to trigger LLama-Vicuna inference on GPU/CPU based server:
 
 ## Precondition:
 ### weights
