@@ -9,8 +9,8 @@
 - [x] 1. install triton server and sevice on kubernetes through single yaml file
 - [x] 2. convert model checkpoint file to hugging face's diffussion model folder fomat, use local file replace "model id"
 - [x] 3. pack a docker image with model file, instead of downloading online
-- [ ] 4. collect model serving performance metrics (native diffusion model call, no triton server), including, latency, throughput.
-- [ ] 5. convert diffusion model to triton format, collect model serving perfoance metric with triton server, refer to [triton guide](https://github.com/triton-inference-server/tutorials/tree/main/Conceptual_Guide/Part_6-building_complex_pipelines)
+- [x] 4. collect model serving performance metrics (native diffusion model call, no triton server), including, latency, throughput.
+- [x] 5. convert diffusion model to triton format, collect model serving perfoance metric with triton server, refer to [triton guide](https://github.com/triton-inference-server/tutorials/tree/main/Conceptual_Guide/Part_6-building_complex_pipelines)
 - [ ] 6. triton server performance analysis and improvement design, or new design -- zeta serving
 ### 3. Fine-tune TODO
 - [ ] 1. how to do multiple pods, elastic training
