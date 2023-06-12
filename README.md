@@ -18,6 +18,7 @@
 -  Accelerate: https://huggingface.co/docs/accelerate/index
 -  ColossalAI: https://github.com/hpcaitech/ColossalAI/tree/main
 -  BytePS https://github.com/bytedance/byteps
+-  Ray Train https://github.com/ray-project/ray-educational-materials/blob/main/Computer_vision_workloads/Semantic_segmentation/Scaling_model_training.ipynb
 ### 4. Cluster TODO
 - [ ] 1. scheduler design consider both the quick serving request and long fine-tuning request (one cluster handle both services)
 - [ ] 2. user model and data managment, fast storage service design, considering isolation and privacy
