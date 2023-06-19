@@ -1,30 +1,25 @@
 # start local k8s kind cluster
-in this README document folder
 ```
-sh ./zeta-kind-local-cluster.sh
+sh ./zeta-local-cluster.sh
 ```
 
+# create test application
+```
+kubectl apply -f ./text-inference-app.yaml
+```
 # setup port forward to access zeta gateway in k8s cluster
+This file create two model server, each server will have a gateway,
 ```
-ENVOY_SERVICE=$(kubectl get svc -n envoy-gateway-system --selector=gateway.envoyproxy.io/owning-gateway-namespace=default,gateway.envoyproxy.io/owning-gateway-name=zeta-gateway -o jsonpath='{.items[0].metadata.name}')
-kubectl -n envoy-gateway-system port-forward service/${ENVOY_SERVICE} 8888:80 &
+ENVOY_SERVICE=$(kubectl get svc -n envoy-gateway-system --selector=gateway.envoyproxy.io/owning-gateway-namespace=zeta,gateway.envoyproxy.io/owning-gateway-name=text-detection -o jsonpath='{.items[0].metadata.name}')
+kubectl -n envoy-gateway-system port-forward service/${ENVOY_SERVICE} 8000:8000 &
+
+ENVOY_SERVICE=$(kubectl get svc -n envoy-gateway-system --selector=gateway.envoyproxy.io/owning-gateway-namespace=zeta,gateway.envoyproxy.io/owning-gateway-name=text-recognition -o jsonpath='{.items[0].metadata.name}')
+kubectl -n envoy-gateway-system port-forward service/${ENVOY_SERVICE} 8001:8000 &
 ```
 
-# test
-## list models
+## infer
 ```
-curl -X POST --verbose --header "Host: localhost" http://localhost:8000/v2/repository/index
-```
-
-## model unload/load
-```
-curl -X POST --verbose --header "Host: localhost" http://localhost:8000/v2/repository/models/<model-name>/load
-curl -X POST --verbose --header "Host: localhost" http://localhost:8000/v2/repository/models/<model-name>/unload
-```
-
- # infer
-```
-curl -X POST --verbose --header "Host: localhost" http://localhost:8000/v2/models/<model-name>/infer -d {put real request document here}
+curl -X POST --verbose --header "Host: localhost" http://localhost:8000/v2/models/<model-id>/infer -d {put real request document here}
 ```
 
 better use triton infer client

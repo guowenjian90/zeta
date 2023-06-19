@@ -8,3 +8,7 @@ nodes:
   - role: control-plane
     image: kindest/node:v1.23.5
     gpus: True
+    extraMounts:
+    - hostPath: /var/zeta/model_repository
+      containerPath: /model_repository
+    

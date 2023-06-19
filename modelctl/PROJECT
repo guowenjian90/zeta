@@ -1,0 +1,17 @@
+domain: io
+layout:
+- go.kubebuilder.io/v3
+multigroup: true
+projectName: zeta-operator
+repo: github.com/CentaurusAI/zeta/operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: io
+  group: centaurusai
+  kind: InferenceApp
+  path: github.com/CentaurusAI/zeta/operator/apis/v1alpha1
+  version: v1alpha1
+version: "1"

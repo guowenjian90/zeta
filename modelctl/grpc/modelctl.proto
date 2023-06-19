@@ -1,0 +1,138 @@
+/*
+Copyright 2022.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+syntax = "proto3";
+package centaurusai.modelctl.service;
+
+option go_package = "CentaurusAI/zeta/modelctl/grpc";
+
+import "google/protobuf/empty.proto";
+import "k8s.io/api/core/v1/generated.proto";
+import "k8s.io/apimachinery/pkg/api/resource/generated.proto";
+import "CentaurusAI/zeta/inference/apis/core/v1alpha1/generated.proto";
+
+service ModelCtlService {
+  rpc getMessage(NodeIdentifier) returns (stream NodeMessage);
+  rpc putMessage(NodeMessage) returns (google.protobuf.Empty);
+}
+
+enum MessageType {
+    UNSPECIFIED = 0;
+    CORE_CONFIGURATION = 100;
+    NODE_CONFIGURATION = 200;
+    NODE_REGISTER = 201;
+    NODE_STATE = 202;
+    NODE_SYNC = 203;
+    MODEL_LOAD = 300;
+    MODEL_UNLOAD = 301;
+}
+ 
+message NodeMessage {
+  NodeIdentifier nodeIdentifier = 1;
+  MessageType messageType = 2;
+  oneof MessageBody {
+    NodeConfiguration nodeConfiguration = 100;
+    NodeState nodeState= 201;
+    NodeSync nodeSync = 202;
+    ModelLoad modelLoad = 300;
+    ModelUnload modelUnload = 301;
+  }
+}
+
+message NodeIdentifier {
+  string ip = 1;
+  string identifier = 2;
+}
+
+/* configuration send to node to initialize/reinitialize before tell core node is ready*/
+message NodeConfiguration {
+  repeated ModelLoad model = 1;
+}
+
+/* state from node */
+message NodeState {
+  int64 nodeRevision = 1;
+  string nodeIp = 2;
+  int32 port = 3;
+  enum State {
+    Unknown = 0;
+    Initializing = 1;
+    Ready = 10;
+    Evicting = 20;
+  }
+  State state = 4;
+  enum Role {
+    UnknownNode = 0;
+    InferenceNode = 1;
+    TrainerNode = 2;
+  }
+  Role role = 5;
+  map<string, k8s.io.apimachinery.pkg.api.resource.Quantity> capacity = 6;
+  map<string, k8s.io.apimachinery.pkg.api.resource.Quantity> allocatable = 7;
+  map<string, ModelState> modelStates = 8;
+}
+
+/* command asking node to send its full state if node revision are not same between core and node*/
+message NodeSync {}
+
+/* state from node to report model state this node is aware */
+message ModelState {
+  // UID of model app
+  string modelIdentifier = 1;
+  string modelName = 2;
+  string modelNamespace = 3;
+  enum State {
+    Unloaded = 0;
+    Creating = 1;
+    Created = 10;
+    Loaded = 20;
+    Evicting = 30;
+  }
+  State state = 4;
+  ModelResource resource = 5;
+  ModelStatistic modelStatistic = 6;
+}
+
+message ModelResource {
+  k8s.io.api.core.v1.ResourceQuotaStatus resourceQuotaStatus = 1;
+}
+
+message ModelStatistic {
+  RequestStatistic statisticPerMinute = 1;
+  RequestStatistic statisticPerHour = 2;
+}
+
+message RequestStatistic {
+  int32 incommingRequests = 1;
+  int32 failedRequests = 2;
+  int32 gpuUsage = 3;
+  int32 cpuUsage = 4;
+}
+
+/* command asking node to load a model*/
+message ModelLoad {
+  string modelIdentifier = 1;
+  string modelName = 2;
+  string modelNamespace = 3;
+  string version = 4;
+  CentaurusAI.zeta.inference.apis.core.v1alpha1.Model model = 5;
+  bool lazyLoad = 6;
+}
+
+/* command asking node to unload a model*/
+message  ModelUnload {
+  string modelIdentifier = 1;
+}

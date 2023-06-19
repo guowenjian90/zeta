@@ -1,3 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-triton-deployment
+  labels:
+    app: example-triton
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example-triton
+  template:
+    metadata:
+      labels:
+        app: example-triton
+    spec:
+      tolerations:
+        # these tolerations are to have the daemonset runnable on control plane nodes
+        # remove them if your control plane nodes should not run pods
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: NoSchedule
+      containers:
+      - name: example-triton
+        image: nvcr.io/nvidia/tritonserver:22.08-py3
+        ports:
+        - containerPort: 8000
+          hostPort: 8000
+        volumeMounts:
+          - mountPath: /models
+            name: volume
+        command: ["tritonserver"]
+        args: ["--model-repository=/models", "--model-control-mode=explicit"]
+        env:
+        - name: KUBE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KUBE_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+      volumes:
+      - name: volume
+        hostPath:
+          path: /model_repository
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: zeta
+  name: example-triton
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: example-triton
+---
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: GatewayClass
 metadata:
@@ -8,7 +72,7 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
-  name: triton-gw
+  name: example-triton-gw
 spec:
   gatewayClassName: eg
   listeners:
@@ -16,66 +80,24 @@ spec:
       protocol: HTTP
       port: 8000
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: triton
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: triton
-  template:
-    metadata:
-      labels:
-        app: triton
-    spec:
-      containers:
-      - name: triton
-        image: nvcr.io/nvidia/tritonserver:22.08-py3
-        ports:
-        - containerPort: 8000
-        volumeMounts:
-          - mountPath: /models
-            name: volume
-        command: ["tritonserver"]
-        args: ["--model-repository=/models", "--model-control-mode=none"]
-      volumes:
-      - name: volume
-        hostPath:
-          path: /model_repository
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: triton
-spec:
-  ports:
-  - port: 8000
-    targetPort: 8000
-    protocol: TCP
-    name: http
-  selector:
-    app: triton
----
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: HTTPRoute
 metadata:
   name: text-recognition
 spec:
   parentRefs:
-  - name: triton-gw
+  - name: example-triton-gw
     sectionName: http
   hostnames:
     - "localhost"
-    - "zeta.example.com"
+    - "zeta.centaurus.ai"
   rules:
   - matches:
     - path:
         type: PathPrefix
         value: /v2/models/text_recognition/infer
     backendRefs:
-    - name: triton
+    - name: example-triton
       kind: Service
       port: 8000
 ---
@@ -85,18 +107,18 @@ metadata:
   name: text-detection
 spec:
   parentRefs:
-  - name: triton-gw
+  - name: example-triton-gw
     sectionName: http
   hostnames:
     - "localhost"
-    - "zeta.example.com"
+    - "zeta.centaurus.ai"
   rules:
   - matches:
     - path:
         type: PathPrefix
         value: /v2/models/text_detection/infer
     backendRefs:
-    - name: triton
+    - name: example-triton
       kind: Service
       port: 8000
 ---
@@ -106,17 +128,17 @@ metadata:
   name: model-management
 spec:
   parentRefs:
-  - name: triton-gw
+  - name: example-triton-gw
     sectionName: http
   hostnames:
     - "localhost"
-    - "zeta.example.com"
+    - "zeta.centaurus.ai"
   rules:
   - matches:
     - path:
         type: PathPrefix
         value: /v2/repository
     backendRefs:
-    - name: triton
+    - name: example-triton
       kind: Service
       port: 8000

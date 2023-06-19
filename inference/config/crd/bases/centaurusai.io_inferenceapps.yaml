@@ -1,0 +1,101 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.0
+  creationTimestamp: null
+  name: inferenceapps.centaurusai.io
+spec:
+  group: centaurusai.io
+  names:
+    kind: InferenceApp
+    listKind: InferenceAppList
+    plural: inferenceapps
+    singular: inferenceapp
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: APIVersion defines the versioned schema of this representation
+              of an object.
+            type: string
+          kind:
+            description: Kind is a string value representing the REST resource this
+              object represents.
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: InferenceAppSpec defines the desired state of InferenceApp
+            properties:
+              model:
+                description: INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                  Model is versioned
+                properties:
+                  metadata:
+                    additionalProperties:
+                      type: string
+                    description: Metadata is configs to initilize this model
+                    type: object
+                  resource:
+                    additionalProperties:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                      x-kubernetes-int-or-string: true
+                    description: ResourceList is a set of (resource name, quantity)
+                      pairs.
+                    type: object
+                  runtime:
+                    type: string
+                  url:
+                    description: where to download this model
+                    type: string
+                type: object
+              scalingPolicy:
+                properties:
+                  burst:
+                    format: int32
+                    type: integer
+                  maximumInstance:
+                    format: int32
+                    type: integer
+                  minimumInstance:
+                    format: int32
+                    type: integer
+                type: object
+            type: object
+          status:
+            description: InferenceAppStatus defines the observed state of InferenceApp
+            properties:
+              appDeploymentStatus:
+                description: AppDeploymentStatus indicates InferenceApp status lifecycle
+                  management
+                type: string
+              appStatus:
+                type: string
+              dashboardURL:
+                type: string
+              entrypointURL:
+                description: INSERT ADDITIONAL STATUS FIELD - define observed state
+                  of cluster
+                type: string
+              message:
+                type: string
+              numOfInstance:
+                format: int32
+                type: integer
+              observedGeneration:
+                format: int64
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

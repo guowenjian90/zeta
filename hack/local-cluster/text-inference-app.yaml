@@ -1,0 +1,42 @@
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: GatewayClass
+metadata:
+  name: eg
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+---
+apiVersion: centaurusai.io/v1alpha1
+kind: InferenceApp
+metadata:
+  namespace: zeta
+  name: text-recognition
+spec:
+  model:
+    url: s3://abucket/afolder
+    runtime: onnxruntime
+    metadata:
+      k: v
+    resource:
+      gpu: 10m
+  scalingPolicy:
+    minimumInstance: 0
+    maximumInstance: 100
+    burst: 2
+---
+apiVersion: centaurusai.io/v1alpha1
+kind: InferenceApp
+metadata:
+  namespace: zeta
+  name: text-detection
+spec:
+  model:
+    url: s3://abucket/afolder
+    runtime: onnxruntime
+    metadata:
+      k: v
+    resource:
+      gpu: 10m
+  scalingPolicy:
+    minimumInstance: 0
+    maximumInstance: 100
+    burst: 2
