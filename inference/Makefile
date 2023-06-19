@@ -94,19 +94,18 @@ run-local:
 	@nohup bin/zeta-inference-controller 
 
 .PHONY: docker-build
-docker-build: test ## Build docker image
-	@sudo docker build -f ./dockerimages/Dockerfile -t centaurusai.io/zeta/inference-controller:${VERSION}
+docker-build: ## Build docker image
+	@sudo docker build -f ./docker/Dockerfile -t centaurusai.io/zeta/inference-controller:${VERSION} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image into docker hub registry
 	@sudo docker push centaurusai.io/zeta/inference-controller:${VERSION}
 
-.PHONY: containerd-local-push
-containerd-local-push:
+.PHONY: containerd-push
+containerd-push:
 	@sudo docker image save -o /tmp/centaurusai.io.zeta-inference-controller.img centaurusai.io/zeta/inference-controller:${VERSION}
-	@sudo crictl rmi centaurusai.io/zeta/inference-controller:${VERSION}
+	# @sudo crictl rmi centaurusai.io/zeta/inference-controller:${VERSION}
 	@sudo ctr -n=k8s.io image import /tmp/centaurusai.io.zeta-inference-controller.img
-
 
 .PHONY: check
 check:

@@ -68,19 +68,29 @@ run-local: ## Download apiserver-boot cmd locally if necessary.
 	@nohup bin/zeta-modelctl
 
 .PHONY: docker-build
-docker-build: test ## Build docker image
-	@sudo docker build -f ./dockerimages/Dockerfile -t centaurusai.io/zeta/modelctl:${VERSION}
+docker-build: ## Build docker image
+	@sudo docker build -f ./docker/Dockerfile.server -t centaurusai.io/zeta/modelctl-server:${VERSION} ..
+	@sudo docker build -f ./docker/Dockerfile.agent -t centaurusai.io/zeta/modelctl-agent:${VERSION} ..
 
 .PHONY: docker-push
 docker-push: ## Push docker image into docker hub registry
-	@sudo docker push centaurusai.io/zeta/modelctl:${VERSION}
+	@sudo docker push centaurusai.io/zeta/modelctl-server:${VERSION}
+	@sudo docker push centaurusai.io/zeta/modelctl-agent:${VERSION}
 
-.PHONY: containerd-local-push
-containerd-local-push:
-	@sudo docker image save -o /tmp/centaurusai.io.zeta-modelctl.img centaurusai.io/zeta/modelctl:${VERSION}
-	@sudo crictl rmi centaurusai.io/zeta/modelctl:${VERSION}
-	@sudo ctr -n=k8s.io image import /tmp/centaurusai.io.zeta-modelctl.img
+.PHONY: containerd-push
+containerd-push: containerd-push-server containerd-push-agent
 
+.PHONY: containerd-push-server
+containerd-push-server:
+	@sudo docker image save -o /tmp/centaurusai.io.zeta-modelctl-server.img centaurusai.io/zeta/modelctl-server:${VERSION}
+	# @sudo crictl rmi centaurusai.io/zeta/modelctl-server:${VERSION}
+	@sudo ctr -n=k8s.io image import /tmp/centaurusai.io.zeta-modelctl-server.img
+
+.PHONY: containerd-push-agent
+containerd-push-agent:
+	@sudo docker image save -o /tmp/centaurusai.io.zeta-modelctl-server.img centaurusai.io/zeta/modelctl-server:${VERSION}
+	# @sudo crictl rmi centaurusai.io/zeta/modelctl-server:${VERSION}
+	@sudo ctr -n=k8s.io image import /tmp/centaurusai.io.zeta-modelctl-server.img
 
 .PHONY: check
 check:
