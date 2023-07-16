@@ -23,20 +23,6 @@ import (
 	"path"
 )
 
-func getRemoteRepository(url string) (RemoteRepository, error) {
-	switch url {
-	// TODO, support multiple protocol, e.g. s3
-	default:
-		return &LocalRepository{
-			localPath: "/model_repository",
-		}, nil
-	}
-}
-
-type RemoteRepository interface {
-	Download(name, url, osPath string) error
-}
-
 func FileCopy(src, dst string) error {
 	var err error
 	var srcfd *os.File

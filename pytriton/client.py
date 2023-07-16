@@ -19,9 +19,9 @@ import io
 import logging
 import pathlib
 
-import numpy as np
-from PIL import Image  # pytype: disable=import-error
+from PIL import Image
 
+import numpy as np
 from pytriton.client import ModelClient
 
 logger = logging.getLogger("examples.huggingface_stable_diffusion.client")

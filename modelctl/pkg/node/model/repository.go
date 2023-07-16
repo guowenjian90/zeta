@@ -46,13 +46,13 @@ const (
 //     │   └── model.onnx
 //     └── config.pbtxt
 
-type ModelRepository struct {
+type ModelLoader struct {
 	endpoint     string
 	rootPath     string
 	modelConfigs map[ktypes.UID]*ModelConfiguration
 }
 
-func NewModelRepository(ip string) *ModelRepository {
+func NewModelLoader(ip string) *ModelLoader {
 	endpoint := "http://localhost:8000"
 	if len(ip) > 0 {
 		endpoint = fmt.Sprintf("http://%s:8000", ip)
@@ -60,7 +60,7 @@ func NewModelRepository(ip string) *ModelRepository {
 	if strings.HasSuffix(endpoint, "/") {
 		endpoint = strings.TrimSuffix(endpoint, "/")
 	}
-	return &ModelRepository{
+	return &ModelLoader{
 		endpoint:     endpoint,
 		rootPath:     DefaultModelRepositoryRootPath,
 		modelConfigs: map[ktypes.UID]*ModelConfiguration{},
@@ -105,7 +105,7 @@ type ModelConfiguration struct {
 	Model        *v1alpha1.Model
 }
 
-func (mr *ModelRepository) init() error {
+func (mr *ModelLoader) init() error {
 	if _, err := os.Stat(mr.rootPath); os.IsNotExist(err) {
 		os.MkdirAll(mr.rootPath, fs.ModeDir.Perm())
 	} else if err != nil {
@@ -130,7 +130,7 @@ type TritionModel struct {
 // {"name":"text_recognition","version":"1","state":"READY"}
 // {"name":"text_recognition_2"}
 // ]
-func (mr *ModelRepository) ListModels() ([]*types.Model, error) {
+func (mr *ModelLoader) ListModels() ([]*types.Model, error) {
 	p := mr.endpoint + "/v2/repository/index"
 	resp, err := http.Post(p, "", nil)
 	if err != nil {
@@ -195,7 +195,7 @@ func (mr *ModelRepository) ListModels() ([]*types.Model, error) {
 }
 
 // curl -X POST --verbose --header "Host: localhost" http://localhost:8000/v2/repository/models/text_detection/load
-func (mr *ModelRepository) LoadModel(model types.Model, lazy bool) error {
+func (mr *ModelLoader) LoadModel(model types.Model, lazy bool) error {
 	if existing, found := mr.modelConfigs[model.Uid]; found && existing.Version == model.Version {
 		// model of expected version already build, skip
 		return nil
@@ -220,7 +220,7 @@ func (mr *ModelRepository) LoadModel(model types.Model, lazy bool) error {
 }
 
 // curl -X POST --verbose --header "Host: localhost" http://localhost:8000/v2/repository/models/text_detection/unload
-func (mr *ModelRepository) UnloadModel(model types.Model) error {
+func (mr *ModelLoader) UnloadModel(model types.Model) error {
 	if config, found := mr.modelConfigs[model.Uid]; found {
 		p := config.CtrlEndpoint + "/unload"
 		res, err := http.Post(p, "", nil)
@@ -236,9 +236,7 @@ func (mr *ModelRepository) UnloadModel(model types.Model) error {
 	return nil
 }
 
-func (mr *ModelRepository) buildModel(model types.Model, forceReplace bool) (*ModelConfiguration, error) {
-	// a trition server can host multiple models from multiple customers, they could use same name, and api server give each model a uid
-	// use model's uid as path, in this case, it will be unique and no conflict with other models with same name, and model app gateway need to configured to use id as api route path also
+func (mr *ModelLoader) buildModel(model types.Model, forceReplace bool) (*ModelConfiguration, error) {
 	hostPath := path.Join(mr.rootPath, string(model.Uid))
 	if _, err := os.Stat(hostPath); os.IsNotExist(err) {
 		if err := os.MkdirAll(hostPath, 0744); err != nil {
@@ -254,43 +252,59 @@ func (mr *ModelRepository) buildModel(model types.Model, forceReplace bool) (*Mo
 	}
 
 	url := model.APIModel.Url
-	remoteReader, err := getRemoteRepository(url)
-	if err != nil {
+	if remoteReader, err := getModelRepository(url); err != nil {
 		return nil, err
-	}
-	if err = remoteReader.Download(string(model.Name), url, hostPath); err != nil {
-		return nil, err
+	} else {
+		if err = remoteReader.Download(string(model.Name), url, hostPath); err != nil {
+			return nil, err
+		}
 	}
 
 	// TODO, this should be better
+	// a triton server can host multiple models from multiple customers, they could use same name,
+	// triton server require model name is unique and same as inference request path,
+	// and api server give each model a uid, use model's uid as path, in this case, it mitigate conflict with other models with same name,
+	// and model app gateway need to configured to use id as api route path also
 	// use Uid as name, name should be unique in a triton server
 	configPath := path.Join(hostPath, "config.pbtxt")
-	content, err := os.ReadFile(configPath)
-	if err != nil {
+	if content, err := os.ReadFile(configPath); err != nil {
 		return nil, err
-	}
-	contentString := string(content)
-	lines := strings.Split(contentString, "\n")
-	for k, v := range lines {
-		if match, err := regexp.MatchString("name: \".*\"", v); match && err == nil {
-			lines[k] = fmt.Sprintf("name: \"%s\"", string(model.Uid))
-			break
+	} else {
+		contentString := string(content)
+		lines := strings.Split(contentString, "\n")
+		for k, v := range lines {
+			if match, err := regexp.MatchString("name: \".*\"", v); match && err == nil {
+				lines[k] = fmt.Sprintf("name: \"%s\"", string(model.Uid))
+				break
+			}
 		}
+		content = []byte(strings.Join(lines, "\n"))
+		if err = os.WriteFile(configPath, content, 0644); err != nil {
+			return nil, err
+		}
+		config := &ModelConfiguration{
+			Uid:          model.Uid,
+			Name:         model.Name,
+			Namespace:    model.Namespace,
+			Version:      model.Version,
+			OsPath:       hostPath,
+			CtrlEndpoint: mr.endpoint + "/v2/repository/models/" + string(model.Uid),
+			Content:      contentString,
+		}
+		return config, nil
 	}
-	content = []byte(strings.Join(lines, "\n"))
-	if err = os.WriteFile(configPath, content, 0644); err != nil {
-		return nil, err
-	}
+}
 
-	config := &ModelConfiguration{
-		Uid:          model.Uid,
-		Name:         model.Name,
-		Namespace:    model.Namespace,
-		Version:      model.Version,
-		OsPath:       hostPath,
-		CtrlEndpoint: mr.endpoint + "/v2/repository/models/" + string(model.Uid),
-		Content:      contentString,
+func getModelRepository(url string) (ModelRepository, error) {
+	switch url {
+	// TODO, support multiple protocol, e.g. s3
+	default:
+		return &LocalRepository{
+			localPath: "/model_repository",
+		}, nil
 	}
+}
 
-	return config, nil
+type ModelRepository interface {
+	Download(name, url, osPath string) error
 }

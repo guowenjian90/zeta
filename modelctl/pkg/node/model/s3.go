@@ -27,4 +27,4 @@ func (*S3Repository) Download(name, url string, osPath string) error {
 	return errors.New("Not implemented")
 }
 
-var _ RemoteRepository = (*S3Repository)(nil)
+var _ ModelRepository = (*S3Repository)(nil)

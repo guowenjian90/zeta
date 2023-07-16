@@ -45,7 +45,7 @@ type nodeAgent struct {
 	innerActor        message.Actor
 	node              *types.Node
 	resourceProviders []node.ResourceProvider
-	modelRepository   *model.ModelRepository
+	modelLoader       *model.ModelLoader
 }
 
 const (
@@ -106,7 +106,7 @@ func (ms *nodeAgent) getNodeAllocatable() (map[v1.ResourceName]*resource.Quantit
 }
 
 func (ms *nodeAgent) getModelStates() (map[string]*modelctl.ModelState, error) {
-	models, err := ms.modelRepository.ListModels()
+	models, err := ms.modelLoader.ListModels()
 	if err != nil {
 		ms.log.Error(err, "Failed to get model status from repository")
 		return nil, err
@@ -236,7 +236,7 @@ func (ms *nodeAgent) loadModel(cmd *modelctl.ModelLoad) (interface{}, error) {
 		Version:   "1", //TODO, could be generation of app
 		APIModel:  cmd.Model.DeepCopy(),
 	}
-	if err := ms.modelRepository.LoadModel(model, cmd.LazyLoad); err != nil {
+	if err := ms.modelLoader.LoadModel(model, cmd.LazyLoad); err != nil {
 		return nil, err
 	}
 	ms.log.Info("Model loaded", "model", cmd)
@@ -249,7 +249,7 @@ func (ms *nodeAgent) unloadModel(cmd *modelctl.ModelUnload) (interface{}, error)
 	model := types.Model{
 		Uid: ktypes.UID(cmd.ModelIdentifier),
 	}
-	if err := ms.modelRepository.UnloadModel(model); err != nil {
+	if err := ms.modelLoader.UnloadModel(model); err != nil {
 		return nil, err
 	}
 	ms.log.Info("Model unloaded", "model", cmd)
@@ -278,8 +278,7 @@ func NewAgent(nodeName, modelCtlEndpoint, nodeIp string) (*nodeAgent, error) {
 		nodeRevision:      1,
 		log:               ctrl.Log.WithName("NodeAgent"),
 		resourceProviders: []node.ResourceProvider{noderesource.NewNvidiaProvider()},
-		// modelRepository:   model.NewModelRepository(nodeIp),
-		modelRepository: model.NewModelRepository("172.18.0.2"), // TODO, use real trition node ip
+		modelLoader:       model.NewModelLoader("172.18.0.2"), // TODO, use real trition node ip
 	}
 	agent.innerActor = message.NewLocalChannelActor(nodeName, agent.processMessage)
 	agent.modelCtlProxy = NewModelCtlProxy(agent.log, "", nodeName, modelCtlEndpoint)

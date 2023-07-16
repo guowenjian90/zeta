@@ -57,6 +57,7 @@ type AppReconciler struct {
 var _ reconcile.Reconciler = (*AppReconciler)(nil)
 
 // Reconcile implements reconcile.Reconciler
+// TODO, update application status according service/gateway and httproute status
 func (r *AppReconciler) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 
 	r.Log.Info("reconciling InferenceApp", "name", request.NamespacedName)
@@ -73,7 +74,7 @@ func (r *AppReconciler) Reconcile(ctx context.Context, request reconcile.Request
 		if !controllerutil.ContainsFinalizer(appInstance, "finalizer") {
 			// so if it does not have our finalizer,
 			// then lets add the finalizer and update the object.
-			r.Log.Info("Add a finalizer", "finalizer", "finalizer")
+			r.Log.Info("Add a finalizer", "finalizer", "todo")
 			controllerutil.AddFinalizer(appInstance, "finalizer")
 			if err := r.Update(ctx, appInstance); err != nil {
 				return ctrl.Result{}, err
